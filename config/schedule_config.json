@@ -1,0 +1,12 @@
+{
+  "enabled": true,
+  "time": "20:00",
+  "stocks": [
+    "00631L.TW",
+    "0050.TW",
+    "2330.TW",
+    "AAPL",
+    "ETH-USD",
+    "BTC-USD"
+  ]
+}

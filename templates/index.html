@@ -1,0 +1,1359 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>📊 量化交易系統 | 智能股票分析平台</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #6366f1;
+            --primary-dark: #4f46e5;
+            --primary-light: #818cf8;
+            --success: #10b981;
+            --success-light: #34d399;
+            --danger: #ef4444;
+            --danger-light: #f87171;
+            --warning: #f59e0b;
+            --info: #3b82f6;
+            --dark: #1e293b;
+            --dark-light: #334155;
+            --gray: #64748b;
+            --gray-light: #94a3b8;
+            --bg-light: #f8fafc;
+            --bg-card: #ffffff;
+            --border: #e2e8f0;
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            --shadow-lg: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+            --gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', sans-serif;
+            background: var(--bg-light);
+            color: var(--dark);
+            line-height: 1.6;
+        }
+
+        /* 導航欄 */
+        .navbar {
+            background: var(--gradient);
+            color: white;
+            padding: 1rem 0;
+            box-shadow: var(--shadow-lg);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .navbar .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .navbar-brand {
+            font-size: 1.5rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .navbar-info {
+            display: flex;
+            gap: 2rem;
+            align-items: center;
+        }
+
+        .navbar-info-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.9rem;
+        }
+
+        /* 主容器 */
+        .main-container {
+            max-width: 1400px;
+            margin: 2rem auto;
+            padding: 0 2rem;
+        }
+
+        /* 統計卡片 */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: var(--bg-card);
+            padding: 1.5rem;
+            border-radius: 12px;
+            box-shadow: var(--shadow);
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            transition: transform 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .stat-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+        }
+
+        .stat-icon.primary { background: linear-gradient(135deg, var(--primary-light), var(--primary)); color: white; }
+        .stat-icon.success { background: linear-gradient(135deg, var(--success-light), var(--success)); color: white; }
+        .stat-icon.warning { background: linear-gradient(135deg, #fbbf24, var(--warning)); color: white; }
+        .stat-icon.info { background: linear-gradient(135deg, #60a5fa, var(--info)); color: white; }
+
+        .stat-content h3 {
+            font-size: 0.9rem;
+            color: var(--gray);
+            font-weight: 500;
+            margin-bottom: 0.3rem;
+        }
+
+        .stat-content p {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--dark);
+        }
+
+        /* 卡片網格 */
+        .cards-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .card {
+            background: var(--bg-card);
+            border-radius: 12px;
+            box-shadow: var(--shadow);
+            overflow: hidden;
+        }
+
+        .card-header {
+            padding: 1.5rem;
+            background: var(--gradient);
+            color: white;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .card-header h2 {
+            font-size: 1.25rem;
+            font-weight: 600;
+        }
+
+        .card-body {
+            padding: 1.5rem;
+        }
+
+        /* 表單元素 */
+        .form-group {
+            margin-bottom: 1.25rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: var(--dark);
+            font-size: 0.9rem;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 0.75rem;
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: all 0.3s;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+        }
+
+        /* 股票列表 */
+        .stock-list {
+            max-height: 350px;
+            overflow-y: auto;
+            margin-bottom: 1rem;
+        }
+
+        .stock-item {
+            display: flex;
+            align-items: center;
+            padding: 0.875rem;
+            margin-bottom: 0.5rem;
+            background: var(--bg-light);
+            border-radius: 8px;
+            border: 2px solid transparent;
+            transition: all 0.3s;
+        }
+
+        .stock-item:hover {
+            background: #f1f5f9;
+            border-color: var(--primary-light);
+        }
+
+        .stock-item input[type="checkbox"] {
+            width: 20px;
+            height: 20px;
+            margin-right: 1rem;
+            cursor: pointer;
+            accent-color: var(--primary);
+        }
+
+        .stock-item-info {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .stock-code {
+            font-weight: 600;
+            color: var(--dark);
+            font-size: 1rem;
+        }
+
+        .stock-badge {
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .badge-tw { background: #dbeafe; color: #1e40af; }
+        .badge-us { background: #fee2e2; color: #991b1b; }
+        .badge-crypto { background: #fef3c7; color: #92400e; }
+
+        .stock-delete {
+            padding: 0.5rem 1rem;
+            background: var(--danger);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.875rem;
+            transition: all 0.3s;
+        }
+
+        .stock-delete:hover {
+            background: var(--danger-light);
+        }
+
+        /* 添加股票 */
+        .add-stock-form {
+            display: flex;
+            gap: 0.75rem;
+            margin-top: 1rem;
+        }
+
+        .add-stock-form input {
+            flex: 1;
+        }
+
+        /* 按鈕 */
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            text-decoration: none;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.4);
+        }
+
+        .btn-success {
+            background: var(--success);
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #059669;
+        }
+
+        .btn-danger {
+            background: var(--danger);
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #dc2626;
+        }
+
+        .btn-secondary {
+            background: var(--gray);
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: var(--dark-light);
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 2px solid var(--primary);
+            color: var(--primary);
+        }
+
+        .btn-outline:hover {
+            background: var(--primary);
+            color: white;
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none !important;
+        }
+
+        .btn-lg {
+            padding: 1rem 2rem;
+            font-size: 1.1rem;
+        }
+
+        .btn-block {
+            width: 100%;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 0.75rem;
+            flex-wrap: wrap;
+            margin-top: 1rem;
+        }
+
+        /* 切換開關 */
+        .toggle-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1rem;
+            background: var(--bg-light);
+            border-radius: 8px;
+        }
+
+        .toggle-label {
+            flex: 1;
+            font-weight: 600;
+            color: var(--dark);
+        }
+
+        .toggle-switch {
+            position: relative;
+            width: 60px;
+            height: 30px;
+        }
+
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .toggle-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: var(--gray-light);
+            border-radius: 30px;
+            transition: 0.3s;
+        }
+
+        .toggle-slider:before {
+            position: absolute;
+            content: "";
+            height: 22px;
+            width: 22px;
+            left: 4px;
+            bottom: 4px;
+            background: white;
+            border-radius: 50%;
+            transition: 0.3s;
+        }
+
+        input:checked + .toggle-slider {
+            background: var(--success);
+        }
+
+        input:checked + .toggle-slider:before {
+            transform: translateX(30px);
+        }
+
+        /* 歷史記錄 */
+        .history-list {
+            max-height: 500px;
+            overflow-y: auto;
+        }
+
+        .history-item {
+            padding: 1rem;
+            margin-bottom: 0.75rem;
+            background: var(--bg-light);
+            border-radius: 8px;
+            border-left: 4px solid var(--gray);
+            transition: all 0.3s;
+        }
+
+        .history-item:hover {
+            background: #f1f5f9;
+            transform: translateX(5px);
+        }
+
+        .history-item.success {
+            border-left-color: var(--success);
+        }
+
+        .history-item.failed {
+            border-left-color: var(--danger);
+        }
+
+        .history-item.error {
+            border-left-color: var(--warning);
+        }
+
+        .history-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.5rem;
+        }
+
+        .history-time {
+            font-size: 0.875rem;
+            color: var(--gray);
+        }
+
+        .history-stock {
+            font-weight: 600;
+            color: var(--dark);
+            font-size: 1rem;
+        }
+
+        .history-message {
+            font-size: 0.875rem;
+            color: var(--gray-light);
+            margin-top: 0.5rem;
+        }
+
+        .status-badge {
+            padding: 0.25rem 0.75rem;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .status-badge.success {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        .status-badge.failed {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .status-badge.error {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        /* 提示框 */
+        .alert {
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: flex-start;
+            gap: 0.75rem;
+        }
+
+        .alert-info {
+            background: #dbeafe;
+            color: #1e40af;
+            border-left: 4px solid var(--info);
+        }
+
+        .alert-success {
+            background: #d1fae5;
+            color: #065f46;
+            border-left: 4px solid var(--success);
+        }
+
+        .alert-warning {
+            background: #fef3c7;
+            color: #92400e;
+            border-left: 4px solid var(--warning);
+        }
+
+        /* 通知 */
+        .notification {
+            position: fixed;
+            top: 2rem;
+            right: 2rem;
+            padding: 1rem 1.5rem;
+            background: white;
+            border-radius: 8px;
+            box-shadow: var(--shadow-lg);
+            z-index: 2000;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            min-width: 300px;
+            animation: slideInRight 0.3s ease;
+        }
+
+        @keyframes slideInRight {
+            from {
+                transform: translateX(400px);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        .notification.success {
+            border-left: 4px solid var(--success);
+        }
+
+        .notification.error {
+            border-left: 4px solid var(--danger);
+        }
+
+        .notification.info {
+            border-left: 4px solid var(--info);
+        }
+
+        /* 載入動畫 */
+        .spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(99, 102, 241, 0.3);
+            border-top-color: var(--primary);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 3000;
+        }
+
+        .loading-content {
+            background: white;
+            padding: 2rem;
+            border-radius: 12px;
+            text-align: center;
+        }
+
+        .loading-content .spinner {
+            width: 40px;
+            height: 40px;
+            border-width: 4px;
+        }
+
+        /* 滾動條 */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--bg-light);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--gray-light);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--gray);
+        }
+
+        /* 響應式設計 */
+        @media (max-width: 768px) {
+            .navbar .container {
+                flex-direction: column;
+                gap: 1rem;
+            }
+
+            .navbar-info {
+                flex-direction: column;
+                gap: 0.5rem;
+            }
+
+            .cards-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .btn-group {
+                flex-direction: column;
+            }
+
+            .btn-group .btn {
+                width: 100%;
+            }
+        }
+
+        /* 空狀態 */
+        .empty-state {
+            text-align: center;
+            padding: 3rem 1rem;
+            color: var(--gray);
+        }
+
+        .empty-state i {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+            opacity: 0.5;
+        }
+
+        .empty-state h3 {
+            font-size: 1.25rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .empty-state p {
+            font-size: 0.875rem;
+        }
+
+        /* 排程顯示 */
+        .schedule-display {
+            padding: 1rem;
+            background: var(--bg-light);
+            border-radius: 8px;
+            min-height: 60px;
+            display: flex;
+            align-items: center;
+            color: var(--gray);
+        }
+
+        .schedule-display.active {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        /* 執行狀態 */
+        .execution-status {
+            margin-top: 1rem;
+            padding: 1rem;
+            background: var(--bg-light);
+            border-radius: 8px;
+            display: none;
+        }
+
+        .execution-status.show {
+            display: block;
+        }
+
+        /* 標籤頁 */
+        .tabs {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1.5rem;
+            border-bottom: 2px solid var(--border);
+        }
+
+        .tab {
+            padding: 0.75rem 1.5rem;
+            background: transparent;
+            border: none;
+            border-bottom: 2px solid transparent;
+            cursor: pointer;
+            font-weight: 600;
+            color: var(--gray);
+            transition: all 0.3s;
+            margin-bottom: -2px;
+        }
+
+        .tab.active {
+            color: var(--primary);
+            border-bottom-color: var(--primary);
+        }
+
+        .tab:hover {
+            color: var(--primary-dark);
+        }
+    </style>
+</head>
+<body>
+    <!-- 導航欄 -->
+    <nav class="navbar">
+        <div class="container">
+            <div class="navbar-brand">
+                <i class="fas fa-chart-line"></i>
+                <span>量化交易系統</span>
+            </div>
+            <div class="navbar-info">
+                <div class="navbar-info-item">
+                    <i class="fas fa-calendar"></i>
+                    <span id="currentDate"></span>
+                </div>
+                <div class="navbar-info-item">
+                    <i class="fas fa-clock"></i>
+                    <span id="currentTime"></span>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- 主容器 -->
+    <div class="main-container">
+        <!-- 統計卡片 -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-icon primary">
+                    <i class="fas fa-list"></i>
+                </div>
+                <div class="stat-content">
+                    <h3>股票總數</h3>
+                    <p id="totalStocks">0</p>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon success">
+                    <i class="fas fa-check-circle"></i>
+                </div>
+                <div class="stat-content">
+                    <h3>成功執行</h3>
+                    <p id="successCount">0</p>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon warning">
+                    <i class="fas fa-clock"></i>
+                </div>
+                <div class="stat-content">
+                    <h3>排程狀態</h3>
+                    <p id="scheduleStatus">未啟用</p>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon info">
+                    <i class="fas fa-history"></i>
+                </div>
+                <div class="stat-content">
+                    <h3>歷史記錄</h3>
+                    <p id="historyCount">0</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- 卡片網格 -->
+        <div class="cards-grid">
+            <!-- 股票清單管理 -->
+            <div class="card">
+                <div class="card-header">
+                    <i class="fas fa-list-ul"></i>
+                    <h2>股票清單管理</h2>
+                </div>
+                <div class="card-body">
+                    <div class="form-group">
+                        <label><i class="fas fa-calendar-alt"></i> 抓取年數</label>
+                        <input type="number" id="years" class="form-control" value="10" min="1" max="20">
+                    </div>
+
+                    <div class="stock-list" id="stockList">
+                        <!-- 動態生成 -->
+                    </div>
+
+                    <div class="add-stock-form">
+                        <input type="text" id="newStock" class="form-control" placeholder="輸入股票代號 (例: 2330.TW)" onkeypress="if(event.key==='Enter') addStock()">
+                        <button class="btn btn-primary" onclick="addStock()">
+                            <i class="fas fa-plus"></i> 新增
+                        </button>
+                    </div>
+
+                    <div class="btn-group">
+                        <button class="btn btn-success" onclick="saveConfig()">
+                            <i class="fas fa-save"></i> 儲存配置
+                        </button>
+                        <button class="btn btn-secondary" onclick="selectAll()">
+                            <i class="fas fa-check-double"></i> 全選
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 快速執行 -->
+            <div class="card">
+                <div class="card-header">
+                    <i class="fas fa-rocket"></i>
+                    <h2>快速執行</h2>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle"></i>
+                        <div>
+                            <strong>自動化流程</strong><br>
+                            📊 數據抓取 → 🔬 指標計算 → 🎯 訊號預測 → 📬 Discord 推送
+                        </div>
+                    </div>
+
+                    <button class="btn btn-primary btn-lg btn-block" onclick="executeAnalysis()">
+                        <i class="fas fa-play"></i>
+                        執行選中股票分析
+                    </button>
+
+                    <div id="executionStatus" class="execution-status"></div>
+
+                    <div class="alert alert-success" style="margin-top: 1rem;">
+                        <i class="fas fa-check-circle"></i>
+                        <div>
+                            <strong>Discord 自動推送</strong><br>
+                            分析完成後自動發送報告到您的頻道
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 排程與歷史 -->
+        <div class="cards-grid">
+            <!-- 排程管理 -->
+            <div class="card">
+                <div class="card-header">
+                    <i class="fas fa-calendar-check"></i>
+                    <h2>排程管理</h2>
+                </div>
+                <div class="card-body">
+                    <div class="toggle-wrapper">
+                        <span class="toggle-label">
+                            <i class="fas fa-power-off"></i> 啟用自動排程
+                        </span>
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="scheduleEnabled">
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+
+                    <div class="form-group">
+                        <label><i class="fas fa-clock"></i> 執行時間</label>
+                        <input type="time" id="scheduleTime" class="form-control" value="20:00">
+                    </div>
+
+                    <div class="form-group">
+                        <label><i class="fas fa-tags"></i> 排程股票</label>
+                        <div id="scheduleStocks" class="schedule-display">
+                            將在儲存時自動使用目前選中的股票
+                        </div>
+                    </div>
+
+                    <div class="btn-group">
+                        <button class="btn btn-success" onclick="saveSchedule()">
+                            <i class="fas fa-save"></i> 儲存排程
+                        </button>
+                        <button class="btn btn-secondary" onclick="loadSchedule()">
+                            <i class="fas fa-sync"></i> 重新載入
+                        </button>
+                    </div>
+
+                    <div class="alert alert-info" style="margin-top: 1rem;">
+                        <i class="fas fa-robot"></i>
+                        <div>
+                            <strong>智能自動化</strong><br>
+                            排程啟動後將每日定時執行並推送結果
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 執行歷史 -->
+            <div class="card">
+                <div class="card-header">
+                    <i class="fas fa-history"></i>
+                    <h2>執行歷史</h2>
+                    <span style="margin-left: auto; font-size: 0.8rem; opacity: 0.9;">
+                        <i class="fas fa-sync-alt"></i> 每30秒自動更新
+                    </span>
+                </div>
+                <div class="card-body">
+                    <div class="btn-group">
+                        <button class="btn btn-secondary" onclick="loadHistory()">
+                            <i class="fas fa-sync"></i> 立即刷新
+                        </button>
+                        <button class="btn btn-danger" onclick="clearHistory()">
+                            <i class="fas fa-trash"></i> 清除歷史
+                        </button>
+                    </div>
+
+                    <div class="history-list" id="historyList">
+                        <!-- 動態生成 -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 全局變量
+        let config = { stocks: [], years: 10 };
+        let selectedStocks = new Set();
+        let historyRefreshInterval = null;
+
+        // 頁面載入初始化
+        window.onload = function() {
+            updateDateTime();
+            setInterval(updateDateTime, 1000);
+            loadConfig();
+            loadHistory();
+            loadSchedule();
+            startHistoryAutoRefresh();
+            updateStats();
+        };
+
+        // 更新日期時間
+        function updateDateTime() {
+            const now = new Date();
+            const dateOptions = { year: 'numeric', month: 'long', day: 'numeric', weekday: 'long' };
+            const timeOptions = { hour: '2-digit', minute: '2-digit', second: '2-digit' };
+            
+            document.getElementById('currentDate').textContent = now.toLocaleDateString('zh-TW', dateOptions);
+            document.getElementById('currentTime').textContent = now.toLocaleTimeString('zh-TW', timeOptions);
+        }
+
+        // 啟動歷史記錄自動刷新
+        function startHistoryAutoRefresh() {
+            if (historyRefreshInterval) {
+                clearInterval(historyRefreshInterval);
+            }
+            historyRefreshInterval = setInterval(() => {
+                loadHistory();
+                updateStats();
+            }, 30000);
+        }
+
+        // 頁面卸載時清除定時器
+        window.onbeforeunload = function() {
+            if (historyRefreshInterval) {
+                clearInterval(historyRefreshInterval);
+            }
+        };
+
+        // 更新統計資料
+        function updateStats() {
+            document.getElementById('totalStocks').textContent = config.stocks.length;
+            
+            fetch('/api/history')
+                .then(res => res.json())
+                .then(history => {
+                    document.getElementById('historyCount').textContent = history.length;
+                    const successCount = history.filter(item => item.status === 'success').length;
+                    document.getElementById('successCount').textContent = successCount;
+                });
+
+            fetch('/api/schedule')
+                .then(res => res.json())
+                .then(schedule => {
+                    document.getElementById('scheduleStatus').textContent = schedule.enabled ? '已啟用' : '未啟用';
+                });
+        }
+
+        // 載入配置
+        async function loadConfig() {
+            try {
+                const response = await fetch('/api/config');
+                config = await response.json();
+                document.getElementById('years').value = config.years;
+                renderStockList();
+                updateStats();
+            } catch (error) {
+                showNotification('載入配置失敗', 'error');
+            }
+        }
+
+        // 渲染股票清單
+        function renderStockList() {
+            const container = document.getElementById('stockList');
+            
+            if (config.stocks.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-inbox"></i>
+                        <h3>尚無股票</h3>
+                        <p>請使用下方表單新增股票代號</p>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = config.stocks.map(stock => {
+                const badge = getStockBadge(stock);
+                return `
+                    <div class="stock-item">
+                        <input type="checkbox" id="stock-${stock}" onchange="toggleStock('${stock}')">
+                        <div class="stock-item-info">
+                            <span class="stock-code">${stock}</span>
+                            <span class="stock-badge ${badge.class}">${badge.text}</span>
+                        </div>
+                        <button class="stock-delete" onclick="removeStock('${stock}')">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // 獲取股票標籤
+        function getStockBadge(stock) {
+            if (stock.includes('.TW')) return { class: 'badge-tw', text: '台股' };
+            if (stock.includes('-USD')) return { class: 'badge-crypto', text: '加密貨幣' };
+            return { class: 'badge-us', text: '美股' };
+        }
+
+        // 切換股票選擇
+        function toggleStock(stock) {
+            const checkbox = document.getElementById(`stock-${stock}`);
+            if (checkbox.checked) {
+                selectedStocks.add(stock);
+            } else {
+                selectedStocks.delete(stock);
+            }
+            updateScheduleDisplay();
+        }
+
+        // 全選
+        function selectAll() {
+            config.stocks.forEach(stock => {
+                const checkbox = document.getElementById(`stock-${stock}`);
+                if (checkbox) {
+                    checkbox.checked = true;
+                    selectedStocks.add(stock);
+                }
+            });
+            updateScheduleDisplay();
+            showNotification('已選擇所有股票', 'success');
+        }
+
+        // 新增股票
+        function addStock() {
+            const input = document.getElementById('newStock');
+            const stock = input.value.trim().toUpperCase();
+
+            if (!stock) {
+                showNotification('請輸入股票代號', 'error');
+                return;
+            }
+
+            if (config.stocks.includes(stock)) {
+                showNotification('股票已存在', 'error');
+                return;
+            }
+
+            config.stocks.push(stock);
+            input.value = '';
+            renderStockList();
+            updateStats();
+            showNotification(`已新增 ${stock}`, 'success');
+        }
+
+        // 刪除股票
+        function removeStock(stock) {
+            if (confirm(`確定要刪除 ${stock} 嗎？`)) {
+                config.stocks = config.stocks.filter(s => s !== stock);
+                selectedStocks.delete(stock);
+                renderStockList();
+                updateStats();
+                showNotification(`已刪除 ${stock}`, 'success');
+            }
+        }
+
+        // 儲存配置
+        async function saveConfig() {
+            try {
+                config.years = parseInt(document.getElementById('years').value);
+                const response = await fetch('/api/config', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(config)
+                });
+                const result = await response.json();
+                showNotification(result.message, 'success');
+                updateStats();
+            } catch (error) {
+                showNotification('儲存配置失敗', 'error');
+            }
+        }
+
+        // 執行分析
+        async function executeAnalysis() {
+            if (selectedStocks.size === 0) {
+                showNotification('請至少選擇一支股票', 'error');
+                return;
+            }
+
+            const btn = event.target;
+            const originalHTML = btn.innerHTML;
+            btn.disabled = true;
+            btn.innerHTML = '<span class="spinner"></span> 執行中...';
+
+            const statusDiv = document.getElementById('executionStatus');
+            statusDiv.className = 'execution-status show';
+            statusDiv.innerHTML = `
+                <div style="display: flex; align-items: center; gap: 0.75rem;">
+                    <span class="spinner"></span>
+                    <span>正在分析 ${selectedStocks.size} 支股票...</span>
+                </div>
+            `;
+
+            try {
+                const response = await fetch('/api/execute', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        stocks: Array.from(selectedStocks),
+                        years: config.years
+                    })
+                });
+                const result = await response.json();
+
+                showNotification(result.message, result.success ? 'success' : 'error');
+                statusDiv.innerHTML = `
+                    <i class="fas fa-${result.success ? 'check-circle' : 'exclamation-circle'}"></i>
+                    ${result.message}
+                `;
+
+                setTimeout(() => {
+                    loadHistory();
+                    updateStats();
+                    statusDiv.className = 'execution-status';
+                }, 3000);
+            } catch (error) {
+                showNotification('執行失敗', 'error');
+                statusDiv.className = 'execution-status';
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = originalHTML;
+            }
+        }
+
+        // 載入歷史記錄
+        async function loadHistory() {
+            try {
+                const response = await fetch('/api/history');
+                const history = await response.json();
+
+                const container = document.getElementById('historyList');
+                
+                if (history.length === 0) {
+                    container.innerHTML = `
+                        <div class="empty-state">
+                            <i class="fas fa-clock"></i>
+                            <h3>暫無執行記錄</h3>
+                            <p>執行分析後將顯示歷史記錄</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                container.innerHTML = history.map(item => `
+                    <div class="history-item ${item.status}">
+                        <div class="history-header">
+                            <div>
+                                <div class="history-stock">
+                                    <i class="fas fa-chart-line"></i> ${item.stock}
+                                    <span class="status-badge ${item.status}">
+                                        ${getStatusIcon(item.status)} ${getStatusText(item.status)}
+                                    </span>
+                                </div>
+                                <div class="history-time">
+                                    <i class="fas fa-clock"></i> ${item.timestamp}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="history-message">
+                            <i class="fas fa-info-circle"></i> ${item.message}
+                        </div>
+                    </div>
+                `).join('');
+
+                updateStats();
+            } catch (error) {
+                showNotification('載入歷史記錄失敗', 'error');
+            }
+        }
+
+        // 清除歷史
+        async function clearHistory() {
+            if (!confirm('確定要清除所有歷史記錄嗎？')) return;
+
+            try {
+                const response = await fetch('/api/history/clear', { method: 'POST' });
+                const result = await response.json();
+                showNotification(result.message, 'success');
+                loadHistory();
+                updateStats();
+            } catch (error) {
+                showNotification('清除失敗', 'error');
+            }
+        }
+
+        // 載入排程配置
+        async function loadSchedule() {
+            try {
+                const response = await fetch('/api/schedule');
+                const schedule = await response.json();
+
+                document.getElementById('scheduleEnabled').checked = schedule.enabled;
+                document.getElementById('scheduleTime').value = schedule.time;
+
+                schedule.stocks.forEach(stock => {
+                    const checkbox = document.getElementById(`stock-${stock}`);
+                    if (checkbox) {
+                        checkbox.checked = true;
+                        selectedStocks.add(stock);
+                    }
+                });
+
+                updateScheduleDisplay();
+                updateStats();
+            } catch (error) {
+                showNotification('載入排程配置失敗', 'error');
+            }
+        }
+
+        // 儲存排程
+        async function saveSchedule() {
+            try {
+                const scheduleConfig = {
+                    enabled: document.getElementById('scheduleEnabled').checked,
+                    time: document.getElementById('scheduleTime').value,
+                    stocks: Array.from(selectedStocks)
+                };
+
+                const response = await fetch('/api/schedule', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(scheduleConfig)
+                });
+                const result = await response.json();
+                showNotification(result.message, 'success');
+                updateStats();
+            } catch (error) {
+                showNotification('儲存排程失敗', 'error');
+            }
+        }
+
+        // 更新排程顯示
+        function updateScheduleDisplay() {
+            const container = document.getElementById('scheduleStocks');
+            if (selectedStocks.size === 0) {
+                container.className = 'schedule-display';
+                container.innerHTML = '<i class="fas fa-info-circle"></i> 將在儲存時自動使用目前選中的股票';
+            } else {
+                container.className = 'schedule-display active';
+                container.innerHTML = `<i class="fas fa-check-circle"></i> 已選擇: ${Array.from(selectedStocks).join(', ')}`;
+            }
+        }
+
+        // 顯示通知
+        function showNotification(message, type = 'success') {
+            const notification = document.createElement('div');
+            notification.className = `notification ${type}`;
+            
+            const icon = type === 'success' ? 'check-circle' : type === 'error' ? 'exclamation-circle' : 'info-circle';
+            notification.innerHTML = `
+                <i class="fas fa-${icon}" style="font-size: 1.5rem;"></i>
+                <span>${message}</span>
+            `;
+            
+            document.body.appendChild(notification);
+
+            setTimeout(() => {
+                notification.remove();
+            }, 3000);
+        }
+
+        // 獲取狀態圖標
+        function getStatusIcon(status) {
+            const icons = {
+                'success': '<i class="fas fa-check"></i>',
+                'failed': '<i class="fas fa-times"></i>',
+                'error': '<i class="fas fa-exclamation"></i>'
+            };
+            return icons[status] || '';
+        }
+
+        // 獲取狀態文字
+        function getStatusText(status) {
+            const texts = {
+                'success': '成功',
+                'failed': '失敗',
+                'error': '錯誤'
+            };
+            return texts[status] || status;
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,20 @@
+# 核心依賴
+yfinance==0.2.38
+pandas==2.2.0
+numpy==1.26.4
+
+# Web 框架
+Flask==3.0.2
+
+# 數據視覺化
+matplotlib==3.8.3
+seaborn==0.13.2
+
+# 任務排程
+schedule==1.2.1
+
+# HTTP 請求（Discord 推送）
+requests==2.31.0
+
+# 其他依賴
+Werkzeug==3.0.1
