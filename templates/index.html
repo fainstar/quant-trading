@@ -7,389 +7,404 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         :root {
-            --primary: #6366f1;
-            --primary-dark: #4f46e5;
-            --primary-light: #818cf8;
-            --success: #10b981;
-            --success-light: #34d399;
+            --bg-gradient-start: #0f172a;
+            --bg-gradient-end: #1e293b;
+            --panel-bg: rgba(15, 23, 42, 0.75);
+            --panel-border: rgba(148, 163, 184, 0.2);
+            --accent: #38bdf8;
+            --accent-soft: rgba(56, 189, 248, 0.2);
+            --success: #22c55e;
+            --warning: #f97316;
             --danger: #ef4444;
-            --danger-light: #f87171;
-            --warning: #f59e0b;
-            --info: #3b82f6;
-            --dark: #1e293b;
-            --dark-light: #334155;
-            --gray: #64748b;
-            --gray-light: #94a3b8;
-            --bg-light: #f8fafc;
-            --bg-card: #ffffff;
-            --border: #e2e8f0;
-            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-            --shadow-lg: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
-            --gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --muted: #94a3b8;
+            --text-primary: #f8fafc;
+            --text-secondary: #cbd5f5;
+            --card-bg: rgba(15, 23, 42, 0.9);
+            --input-bg: rgba(15, 23, 42, 0.6);
+            --input-border: rgba(148, 163, 184, 0.3);
+            --shadow-strong: 0 24px 40px -24px rgba(15, 23, 42, 0.75);
+            --shadow-soft: 0 18px 30px -24px rgba(15, 23, 42, 0.65);
         }
 
         * {
+            box-sizing: border-box;
             margin: 0;
             padding: 0;
-            box-sizing: border-box;
         }
 
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', sans-serif;
-            background: var(--bg-light);
-            color: var(--dark);
-            line-height: 1.6;
-        }
-
-        /* 導航欄 */
-        .navbar {
-            background: var(--gradient);
-            color: white;
-            padding: 1rem 0;
-            box-shadow: var(--shadow-lg);
-            position: sticky;
-            top: 0;
-            z-index: 1000;
-        }
-
-        .navbar .container {
-            max-width: 1400px;
-            margin: 0 auto;
-            padding: 0 2rem;
+            font-family: "Inter", "Noto Sans TC", sans-serif;
+            background: radial-gradient(circle at top left, rgba(56, 189, 248, 0.12), transparent 45%),
+                        radial-gradient(circle at 20% 80%, rgba(34, 197, 94, 0.1), transparent 50%),
+                        linear-gradient(135deg, var(--bg-gradient-start), var(--bg-gradient-end));
+            color: var(--text-primary);
+            min-height: 100vh;
             display: flex;
-            justify-content: space-between;
-            align-items: center;
         }
 
-        .navbar-brand {
-            font-size: 1.5rem;
-            font-weight: 700;
+        .app-shell {
             display: flex;
-            align-items: center;
-            gap: 0.5rem;
+            width: 100%;
         }
 
-        .navbar-info {
+        .sidebar {
+            width: 320px;
+            padding: 2rem 1.75rem;
+            background: rgba(15, 23, 42, 0.8);
+            border-right: 1px solid rgba(148, 163, 184, 0.1);
+            backdrop-filter: blur(14px);
             display: flex;
-            gap: 2rem;
-            align-items: center;
+            flex-direction: column;
+            gap: 1.75rem;
         }
 
-        .navbar-info-item {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            font-size: 0.9rem;
-        }
-
-        /* 主容器 */
-        .main-container {
-            max-width: 1400px;
-            margin: 2rem auto;
-            padding: 0 2rem;
-        }
-
-        /* 統計卡片 */
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 1.5rem;
-            margin-bottom: 2rem;
-        }
-
-        .stat-card {
-            background: var(--bg-card);
-            padding: 1.5rem;
-            border-radius: 12px;
-            box-shadow: var(--shadow);
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-            transition: transform 0.3s ease;
-        }
-
-        .stat-card:hover {
-            transform: translateY(-5px);
-            box-shadow: var(--shadow-lg);
-        }
-
-        .stat-icon {
-            width: 60px;
-            height: 60px;
-            border-radius: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.5rem;
-        }
-
-        .stat-icon.primary { background: linear-gradient(135deg, var(--primary-light), var(--primary)); color: white; }
-        .stat-icon.success { background: linear-gradient(135deg, var(--success-light), var(--success)); color: white; }
-        .stat-icon.warning { background: linear-gradient(135deg, #fbbf24, var(--warning)); color: white; }
-        .stat-icon.info { background: linear-gradient(135deg, #60a5fa, var(--info)); color: white; }
-
-        .stat-content h3 {
-            font-size: 0.9rem;
-            color: var(--gray);
-            font-weight: 500;
-            margin-bottom: 0.3rem;
-        }
-
-        .stat-content p {
-            font-size: 1.8rem;
-            font-weight: 700;
-            color: var(--dark);
-        }
-
-        /* 卡片網格 */
-        .cards-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
-            gap: 1.5rem;
-            margin-bottom: 2rem;
-        }
-
-        .card {
-            background: var(--bg-card);
-            border-radius: 12px;
-            box-shadow: var(--shadow);
-            overflow: hidden;
-        }
-
-        .card-header {
-            padding: 1.5rem;
-            background: var(--gradient);
-            color: white;
+        .brand-block {
             display: flex;
             align-items: center;
             gap: 0.75rem;
         }
 
-        .card-header h2 {
+        .brand-block .logo {
+            background: linear-gradient(135deg, rgba(56, 189, 248, 0.2), rgba(56, 189, 248, 0.05));
+            border: 1px solid rgba(56, 189, 248, 0.25);
+            color: var(--accent);
+            width: 52px;
+            height: 52px;
+            border-radius: 16px;
+            display: grid;
+            place-items: center;
+            font-size: 1.5rem;
+            box-shadow: var(--shadow-soft);
+        }
+
+        .brand-block .brand-text h1 {
             font-size: 1.25rem;
+            font-weight: 700;
+            letter-spacing: 0.04em;
+        }
+
+        .brand-block .brand-text span {
+            font-size: 0.75rem;
+            color: var(--muted);
+        }
+
+        .datetime-card {
+            padding: 1.25rem;
+            background: var(--panel-bg);
+            border-radius: 18px;
+            border: 1px solid var(--panel-border);
+            box-shadow: var(--shadow-soft);
+            display: grid;
+            gap: 0.35rem;
+        }
+
+        .datetime-card label {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: var(--muted);
+        }
+
+        .datetime-card strong {
+            font-size: 1rem;
+        }
+
+        .stats-group {
+            display: grid;
+            gap: 0.9rem;
+        }
+
+        .stat-tile {
+            padding: 1rem 1.25rem;
+            border-radius: 16px;
+            border: 1px solid rgba(148, 163, 184, 0.15);
+            background: rgba(15, 23, 42, 0.65);
+            display: flex;
+            align-items: center;
+            gap: 0.9rem;
+            transition: transform 0.3s ease, border 0.3s ease;
+        }
+
+        .stat-tile:hover {
+            transform: translateY(-2px);
+            border-color: rgba(56, 189, 248, 0.4);
+        }
+
+        .stat-icon {
+            width: 42px;
+            height: 42px;
+            border-radius: 12px;
+            display: grid;
+            place-items: center;
+            background: rgba(56, 189, 248, 0.12);
+            color: var(--accent);
+            font-size: 1.2rem;
+        }
+
+        .stat-content {
+            display: flex;
+            flex-direction: column;
+            gap: 0.15rem;
+        }
+
+        .stat-content span {
+            font-size: 0.8rem;
+            color: var(--muted);
+        }
+
+        .stat-content strong {
+            font-size: 1.35rem;
+            letter-spacing: 0.02em;
+        }
+
+        .content {
+            flex: 1;
+            padding: 2.8rem 3.2rem;
+            display: flex;
+            flex-direction: column;
+            gap: 2.5rem;
+            overflow-y: auto;
+        }
+
+        .hero {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 1.5rem;
+        }
+
+        .hero h2 {
+            font-size: 2rem;
+            font-weight: 700;
+            letter-spacing: 0.02em;
+        }
+
+        .hero p {
+            margin-top: 0.35rem;
+            color: var(--muted);
+        }
+
+        .panel-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 2rem;
+        }
+
+        @media (max-width: 1440px) {
+            .panel-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .panel {
+            background: var(--card-bg);
+            border-radius: 22px;
+            border: 1px solid var(--panel-border);
+            padding: 2rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1.6rem;
+            position: relative;
+            box-shadow: var(--shadow-strong);
+        }
+
+        .panel-header {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            justify-content: space-between;
+        }
+
+        .panel-header h3 {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-size: 1.15rem;
             font-weight: 600;
         }
 
-        .card-body {
-            padding: 1.5rem;
+        .panel-header h3 span {
+            display: inline-flex;
+            width: 42px;
+            height: 42px;
+            align-items: center;
+            justify-content: center;
+            border-radius: 14px;
+            background: rgba(56, 189, 248, 0.15);
+            color: var(--accent);
         }
 
-        /* 表單元素 */
-        .form-group {
-            margin-bottom: 1.25rem;
+        .panel-description {
+            color: var(--muted);
+            font-size: 0.9rem;
+            line-height: 1.6;
+        }
+
+        .form-grid {
+            display: grid;
+            gap: 1.25rem;
         }
 
         .form-group label {
             display: block;
             margin-bottom: 0.5rem;
             font-weight: 600;
-            color: var(--dark);
-            font-size: 0.9rem;
+            color: var(--text-secondary);
         }
 
         .form-control {
             width: 100%;
-            padding: 0.75rem;
-            border: 2px solid var(--border);
-            border-radius: 8px;
-            font-size: 1rem;
-            transition: all 0.3s;
+            padding: 0.85rem 1rem;
+            border-radius: 14px;
+            border: 1px solid var(--input-border);
+            background: var(--input-bg);
+            color: var(--text-primary);
+            outline: none;
+            transition: border 0.3s ease, box-shadow 0.3s ease;
         }
 
         .form-control:focus {
-            outline: none;
-            border-color: var(--primary);
-            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+            border-color: rgba(56, 189, 248, 0.6);
+            box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.25);
         }
 
-        /* 股票列表 */
+        .btn-group {
+            display: flex;
+            gap: 0.85rem;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 0.85rem 1.25rem;
+            border-radius: 14px;
+            border: none;
+            font-weight: 600;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.45rem;
+            transition: transform 0.25s ease, box-shadow 0.25s ease;
+        }
+
+        .btn i { font-size: 0.95rem; }
+
+        .btn-lg {
+            font-size: 1.05rem;
+            padding: 1rem 1.5rem;
+        }
+
+        .btn-block {
+            justify-content: center;
+            width: 100%;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #38bdf8, #0ea5e9);
+            color: #0f172a;
+            box-shadow: 0 16px 35px -20px rgba(14, 165, 233, 0.8);
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, rgba(34, 197, 94, 0.85), rgba(22, 163, 74, 0.9));
+            color: #052e16;
+            box-shadow: 0 16px 35px -20px rgba(34, 197, 94, 0.9);
+        }
+
+        .btn-secondary {
+            background: rgba(148, 163, 184, 0.2);
+            color: var(--text-primary);
+            border: 1px solid rgba(148, 163, 184, 0.2);
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, rgba(239, 68, 68, 0.9), rgba(220, 38, 38, 0.95));
+            color: #fff;
+        }
+
+        .btn:hover {
+            transform: translateY(-1px);
+        }
+
         .stock-list {
-            max-height: 350px;
-            overflow-y: auto;
-            margin-bottom: 1rem;
+            display: grid;
+            gap: 0.75rem;
+            max-height: 260px;
+            overflow: auto;
+            padding-right: 0.4rem;
         }
 
         .stock-item {
             display: flex;
             align-items: center;
-            padding: 0.875rem;
-            margin-bottom: 0.5rem;
-            background: var(--bg-light);
-            border-radius: 8px;
-            border: 2px solid transparent;
-            transition: all 0.3s;
-        }
-
-        .stock-item:hover {
-            background: #f1f5f9;
-            border-color: var(--primary-light);
-        }
-
-        .stock-item input[type="checkbox"] {
-            width: 20px;
-            height: 20px;
-            margin-right: 1rem;
-            cursor: pointer;
-            accent-color: var(--primary);
+            gap: 0.9rem;
+            padding: 0.75rem 0.95rem;
+            border-radius: 12px;
+            background: rgba(15, 23, 42, 0.6);
+            border: 1px solid rgba(148, 163, 184, 0.18);
         }
 
         .stock-item-info {
             flex: 1;
             display: flex;
+            gap: 0.85rem;
             align-items: center;
-            gap: 0.5rem;
         }
 
         .stock-code {
             font-weight: 600;
-            color: var(--dark);
-            font-size: 1rem;
+            letter-spacing: 0.04em;
         }
 
         .stock-badge {
-            padding: 0.25rem 0.5rem;
-            border-radius: 4px;
+            padding: 0.25rem 0.6rem;
+            border-radius: 999px;
             font-size: 0.75rem;
             font-weight: 600;
         }
 
-        .badge-tw { background: #dbeafe; color: #1e40af; }
-        .badge-us { background: #fee2e2; color: #991b1b; }
-        .badge-crypto { background: #fef3c7; color: #92400e; }
+        .badge-tw { background: rgba(56, 189, 248, 0.15); color: #38bdf8; }
+        .badge-us { background: rgba(94, 234, 212, 0.15); color: #22d3ee; }
+        .badge-crypto { background: rgba(250, 204, 21, 0.15); color: #facc15; }
 
         .stock-delete {
-            padding: 0.5rem 1rem;
-            background: var(--danger);
-            color: white;
             border: none;
-            border-radius: 6px;
+            background: rgba(239, 68, 68, 0.12);
+            color: #f87171;
+            width: 34px;
+            height: 34px;
+            border-radius: 10px;
             cursor: pointer;
-            font-size: 0.875rem;
-            transition: all 0.3s;
         }
 
-        .stock-delete:hover {
-            background: var(--danger-light);
-        }
-
-        /* 添加股票 */
         .add-stock-form {
             display: flex;
             gap: 0.75rem;
-            margin-top: 1rem;
+            margin-top: 0.4rem;
         }
 
         .add-stock-form input {
             flex: 1;
         }
 
-        /* 按鈕 */
-        .btn {
-            padding: 0.75rem 1.5rem;
-            border: none;
-            border-radius: 8px;
-            font-size: 1rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            gap: 0.5rem;
-            text-decoration: none;
-        }
-
-        .btn-primary {
-            background: var(--primary);
-            color: white;
-        }
-
-        .btn-primary:hover {
-            background: var(--primary-dark);
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.4);
-        }
-
-        .btn-success {
-            background: var(--success);
-            color: white;
-        }
-
-        .btn-success:hover {
-            background: #059669;
-        }
-
-        .btn-danger {
-            background: var(--danger);
-            color: white;
-        }
-
-        .btn-danger:hover {
-            background: #dc2626;
-        }
-
-        .btn-secondary {
-            background: var(--gray);
-            color: white;
-        }
-
-        .btn-secondary:hover {
-            background: var(--dark-light);
-        }
-
-        .btn-outline {
-            background: transparent;
-            border: 2px solid var(--primary);
-            color: var(--primary);
-        }
-
-        .btn-outline:hover {
-            background: var(--primary);
-            color: white;
-        }
-
-        .btn:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-            transform: none !important;
-        }
-
-        .btn-lg {
-            padding: 1rem 2rem;
-            font-size: 1.1rem;
-        }
-
-        .btn-block {
-            width: 100%;
-        }
-
-        .btn-group {
-            display: flex;
-            gap: 0.75rem;
-            flex-wrap: wrap;
-            margin-top: 1rem;
-        }
-
-        /* 切換開關 */
         .toggle-wrapper {
             display: flex;
+            justify-content: space-between;
             align-items: center;
             gap: 1rem;
-            padding: 1rem;
-            background: var(--bg-light);
-            border-radius: 8px;
+            padding: 0.9rem 1rem;
+            border-radius: 14px;
+            background: rgba(15, 23, 42, 0.55);
+            border: 1px solid rgba(148, 163, 184, 0.14);
         }
 
         .toggle-label {
-            flex: 1;
             font-weight: 600;
-            color: var(--dark);
         }
 
         .toggle-switch {
             position: relative;
-            width: 60px;
-            height: 30px;
+            width: 52px;
+            height: 28px;
         }
 
         .toggle-switch input {
@@ -401,427 +416,330 @@
         .toggle-slider {
             position: absolute;
             cursor: pointer;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: var(--gray-light);
-            border-radius: 30px;
+            inset: 0;
+            background: rgba(148, 163, 184, 0.35);
             transition: 0.3s;
+            border-radius: 999px;
         }
 
         .toggle-slider:before {
             position: absolute;
             content: "";
-            height: 22px;
-            width: 22px;
+            height: 20px;
+            width: 20px;
             left: 4px;
             bottom: 4px;
-            background: white;
-            border-radius: 50%;
+            background-color: white;
             transition: 0.3s;
-        }
-
-        input:checked + .toggle-slider {
-            background: var(--success);
-        }
-
-        input:checked + .toggle-slider:before {
-            transform: translateX(30px);
-        }
-
-        /* 歷史記錄 */
-        .history-list {
-            max-height: 500px;
-            overflow-y: auto;
-        }
-
-        .history-item {
-            padding: 1rem;
-            margin-bottom: 0.75rem;
-            background: var(--bg-light);
-            border-radius: 8px;
-            border-left: 4px solid var(--gray);
-            transition: all 0.3s;
-        }
-
-        .history-item:hover {
-            background: #f1f5f9;
-            transform: translateX(5px);
-        }
-
-        .history-item.success {
-            border-left-color: var(--success);
-        }
-
-        .history-item.failed {
-            border-left-color: var(--danger);
-        }
-
-        .history-item.error {
-            border-left-color: var(--warning);
-        }
-
-        .history-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 0.5rem;
-        }
-
-        .history-time {
-            font-size: 0.875rem;
-            color: var(--gray);
-        }
-
-        .history-stock {
-            font-weight: 600;
-            color: var(--dark);
-            font-size: 1rem;
-        }
-
-        .history-message {
-            font-size: 0.875rem;
-            color: var(--gray-light);
-            margin-top: 0.5rem;
-        }
-
-        .status-badge {
-            padding: 0.25rem 0.75rem;
-            border-radius: 12px;
-            font-size: 0.75rem;
-            font-weight: 600;
-            text-transform: uppercase;
-        }
-
-        .status-badge.success {
-            background: #d1fae5;
-            color: #065f46;
-        }
-
-        .status-badge.failed {
-            background: #fee2e2;
-            color: #991b1b;
-        }
-
-        .status-badge.error {
-            background: #fef3c7;
-            color: #92400e;
-        }
-
-        /* 提示框 */
-        .alert {
-            padding: 1rem;
-            border-radius: 8px;
-            margin-bottom: 1rem;
-            display: flex;
-            align-items: flex-start;
-            gap: 0.75rem;
-        }
-
-        .alert-info {
-            background: #dbeafe;
-            color: #1e40af;
-            border-left: 4px solid var(--info);
-        }
-
-        .alert-success {
-            background: #d1fae5;
-            color: #065f46;
-            border-left: 4px solid var(--success);
-        }
-
-        .alert-warning {
-            background: #fef3c7;
-            color: #92400e;
-            border-left: 4px solid var(--warning);
-        }
-
-        /* 通知 */
-        .notification {
-            position: fixed;
-            top: 2rem;
-            right: 2rem;
-            padding: 1rem 1.5rem;
-            background: white;
-            border-radius: 8px;
-            box-shadow: var(--shadow-lg);
-            z-index: 2000;
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-            min-width: 300px;
-            animation: slideInRight 0.3s ease;
-        }
-
-        @keyframes slideInRight {
-            from {
-                transform: translateX(400px);
-                opacity: 0;
-            }
-            to {
-                transform: translateX(0);
-                opacity: 1;
-            }
-        }
-
-        .notification.success {
-            border-left: 4px solid var(--success);
-        }
-
-        .notification.error {
-            border-left: 4px solid var(--danger);
-        }
-
-        .notification.info {
-            border-left: 4px solid var(--info);
-        }
-
-        /* 載入動畫 */
-        .spinner {
-            display: inline-block;
-            width: 20px;
-            height: 20px;
-            border: 3px solid rgba(99, 102, 241, 0.3);
-            border-top-color: var(--primary);
             border-radius: 50%;
-            animation: spin 0.8s linear infinite;
         }
 
-        @keyframes spin {
-            to { transform: rotate(360deg); }
+        .toggle-switch input:checked + .toggle-slider {
+            background: rgba(56, 189, 248, 0.55);
         }
 
-        .loading-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(0, 0, 0, 0.5);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 3000;
-        }
-
-        .loading-content {
-            background: white;
-            padding: 2rem;
-            border-radius: 12px;
-            text-align: center;
-        }
-
-        .loading-content .spinner {
-            width: 40px;
-            height: 40px;
-            border-width: 4px;
-        }
-
-        /* 滾動條 */
-        ::-webkit-scrollbar {
-            width: 8px;
-            height: 8px;
-        }
-
-        ::-webkit-scrollbar-track {
-            background: var(--bg-light);
-        }
-
-        ::-webkit-scrollbar-thumb {
-            background: var(--gray-light);
-            border-radius: 4px;
-        }
-
-        ::-webkit-scrollbar-thumb:hover {
-            background: var(--gray);
-        }
-
-        /* 響應式設計 */
-        @media (max-width: 768px) {
-            .navbar .container {
-                flex-direction: column;
-                gap: 1rem;
-            }
-
-            .navbar-info {
-                flex-direction: column;
-                gap: 0.5rem;
-            }
-
-            .cards-grid {
-                grid-template-columns: 1fr;
-            }
-
-            .stats-grid {
-                grid-template-columns: 1fr;
-            }
-
-            .btn-group {
-                flex-direction: column;
-            }
-
-            .btn-group .btn {
-                width: 100%;
-            }
-        }
-
-        /* 空狀態 */
-        .empty-state {
-            text-align: center;
-            padding: 3rem 1rem;
-            color: var(--gray);
-        }
-
-        .empty-state i {
-            font-size: 4rem;
-            margin-bottom: 1rem;
-            opacity: 0.5;
-        }
-
-        .empty-state h3 {
-            font-size: 1.25rem;
-            margin-bottom: 0.5rem;
-        }
-
-        .empty-state p {
-            font-size: 0.875rem;
-        }
-
-        /* 排程顯示 */
-        .schedule-display {
-            padding: 1rem;
-            background: var(--bg-light);
-            border-radius: 8px;
-            min-height: 60px;
-            display: flex;
-            align-items: center;
-            color: var(--gray);
+        .toggle-switch input:checked + .toggle-slider:before {
+            transform: translateX(24px);
         }
 
         .schedule-display.active {
-            background: #d1fae5;
-            color: #065f46;
+            border-style: solid;
+            border-color: rgba(56, 189, 248, 0.35);
+            color: var(--text-primary);
+            background: rgba(56, 189, 248, 0.08);
         }
 
-        /* 執行狀態 */
+        .alert {
+            border-radius: 16px;
+            padding: 1rem 1.25rem;
+            display: flex;
+            gap: 0.8rem;
+            align-items: flex-start;
+            font-size: 0.9rem;
+        }
+
+        .alert i { margin-top: 0.12rem; }
+
+        .alert-success {
+            background: rgba(34, 197, 94, 0.12);
+            border: 1px solid rgba(34, 197, 94, 0.25);
+            color: #bbf7d0;
+        }
+
+        .alert-warning {
+            background: rgba(234, 179, 8, 0.12);
+            border: 1px solid rgba(234, 179, 8, 0.3);
+            color: #fde68a;
+        }
+
+        .alert-info {
+            background: rgba(56, 189, 248, 0.12);
+            border: 1px solid rgba(56, 189, 248, 0.28);
+            color: #bae6fd;
+        }
+
         .execution-status {
-            margin-top: 1rem;
-            padding: 1rem;
-            background: var(--bg-light);
-            border-radius: 8px;
+            margin-top: 0.85rem;
+            background: rgba(15, 23, 42, 0.55);
+            border: 1px solid rgba(148, 163, 184, 0.2);
+            border-radius: 14px;
+            padding: 0.85rem 1rem;
             display: none;
+            font-size: 0.9rem;
         }
 
         .execution-status.show {
             display: block;
         }
 
-        /* 標籤頁 */
-        .tabs {
+        .schedule-display {
+            padding: 0.9rem 1rem;
+            border-radius: 14px;
+            background: rgba(15, 23, 42, 0.55);
+            border: 1px dashed rgba(148, 163, 184, 0.25);
+            color: var(--muted);
+        }
+
+        .history-header {
             display: flex;
-            gap: 0.5rem;
-            margin-bottom: 1.5rem;
-            border-bottom: 2px solid var(--border);
+            align-items: center;
+            justify-content: space-between;
+            font-size: 0.85rem;
+            color: var(--muted);
         }
 
-        .tab {
-            padding: 0.75rem 1.5rem;
-            background: transparent;
-            border: none;
-            border-bottom: 2px solid transparent;
-            cursor: pointer;
+        .history-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+            max-height: 320px;
+            overflow: auto;
+            padding-right: 0.4rem;
+        }
+
+        .history-item {
+            display: grid;
+            grid-template-columns: auto 100px;
+            gap: 0.75rem;
+            align-items: center;
+            padding: 0.9rem 1.1rem;
+            border-radius: 14px;
+            border: 1px solid rgba(148, 163, 184, 0.15);
+            background: rgba(15, 23, 42, 0.58);
+        }
+
+        .history-item.success { border-left: 4px solid rgba(34, 197, 94, 0.7); }
+        .history-item.failed { border-left: 4px solid rgba(239, 68, 68, 0.7); }
+        .history-item.error { border-left: 4px solid rgba(250, 204, 21, 0.7); }
+
+        .history-item strong { letter-spacing: 0.02em; }
+
+        .history-item span {
+            color: var(--muted);
+            font-size: 0.8rem;
+        }
+
+        .history-item small {
+            color: rgba(148, 163, 184, 0.7);
+            font-size: 0.75rem;
+        }
+
+        .history-stock {
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
             font-weight: 600;
-            color: var(--gray);
-            transition: all 0.3s;
-            margin-bottom: -2px;
         }
 
-        .tab.active {
-            color: var(--primary);
-            border-bottom-color: var(--primary);
+        .history-time {
+            margin-top: 0.35rem;
+            font-size: 0.8rem;
+            color: rgba(148, 163, 184, 0.8);
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
         }
 
-        .tab:hover {
-            color: var(--primary-dark);
+        .history-message {
+            grid-column: 1 / -1;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            display: flex;
+            align-items: flex-start;
+            gap: 0.45rem;
+        }
+
+        .status-badge {
+            padding: 0.2rem 0.65rem;
+            border-radius: 999px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.35rem;
+        }
+
+        .empty-state {
+            padding: 1.25rem;
+            border-radius: 16px;
+            text-align: center;
+            border: 1px dashed rgba(148, 163, 184, 0.2);
+            color: var(--muted);
+        }
+
+        .empty-state i {
+            font-size: 1.5rem;
+            margin-bottom: 0.5rem;
+            display: block;
+        }
+
+        .notification {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            padding: 1rem 1.25rem;
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            background: rgba(15, 23, 42, 0.92);
+            border: 1px solid rgba(148, 163, 184, 0.2);
+            color: var(--text-primary);
+            box-shadow: var(--shadow-strong);
+            z-index: 9999;
+            animation: fade-in 0.3s ease;
+        }
+
+        .notification.success { border-color: rgba(34, 197, 94, 0.4); color: #bbf7d0; }
+        .notification.error { border-color: rgba(239, 68, 68, 0.4); color: #fecaca; }
+        .notification.info { border-color: rgba(56, 189, 248, 0.4); color: #bae6fd; }
+
+        .spinner {
+            width: 16px;
+            height: 16px;
+            border: 3px solid rgba(148, 163, 184, 0.35);
+            border-top-color: var(--accent);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            display: inline-block;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        @keyframes fade-in {
+            from { opacity: 0; transform: translateY(8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @media (max-width: 1100px) {
+            .app-shell {
+                flex-direction: column;
+            }
+
+            .sidebar {
+                width: 100%;
+                flex-direction: row;
+                overflow-x: auto;
+                gap: 1.5rem;
+            }
+
+            .stats-group {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+                min-width: 320px;
+            }
         }
     </style>
 </head>
 <body>
-    <!-- 導航欄 -->
-    <nav class="navbar">
-        <div class="container">
-            <div class="navbar-brand">
-                <i class="fas fa-chart-line"></i>
-                <span>量化交易系統</span>
-            </div>
-            <div class="navbar-info">
-                <div class="navbar-info-item">
-                    <i class="fas fa-calendar"></i>
-                    <span id="currentDate"></span>
+    <div class="app-shell">
+        <aside class="sidebar">
+            <div class="brand-block">
+                <div class="logo">
+                    <i class="fas fa-chart-line"></i>
                 </div>
-                <div class="navbar-info-item">
-                    <i class="fas fa-clock"></i>
-                    <span id="currentTime"></span>
+                <div class="brand-text">
+                    <h1>量化交易系統</h1>
+                    <span>Smart Quant Workflow</span>
                 </div>
             </div>
-        </div>
-    </nav>
 
-    <!-- 主容器 -->
-    <div class="main-container">
-        <!-- 統計卡片 -->
-        <div class="stats-grid">
-            <div class="stat-card">
-                <div class="stat-icon primary">
-                    <i class="fas fa-list"></i>
+            <div class="datetime-card">
+                <div>
+                    <label>今日日期</label>
+                    <strong id="currentDate">--</strong>
                 </div>
-                <div class="stat-content">
-                    <h3>股票總數</h3>
-                    <p id="totalStocks">0</p>
+                <div>
+                    <label>目前時間</label>
+                    <strong id="currentTime">--</strong>
                 </div>
             </div>
-            <div class="stat-card">
-                <div class="stat-icon success">
-                    <i class="fas fa-check-circle"></i>
-                </div>
-                <div class="stat-content">
-                    <h3>成功執行</h3>
-                    <p id="successCount">0</p>
-                </div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-icon warning">
-                    <i class="fas fa-clock"></i>
-                </div>
-                <div class="stat-content">
-                    <h3>排程狀態</h3>
-                    <p id="scheduleStatus">未啟用</p>
-                </div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-icon info">
-                    <i class="fas fa-history"></i>
-                </div>
-                <div class="stat-content">
-                    <h3>歷史記錄</h3>
-                    <p id="historyCount">0</p>
-                </div>
-            </div>
-        </div>
 
-        <!-- 卡片網格 -->
-        <div class="cards-grid">
-            <!-- 股票清單管理 -->
-            <div class="card">
-                <div class="card-header">
-                    <i class="fas fa-list-ul"></i>
-                    <h2>股票清單管理</h2>
+            <div class="stats-group">
+                <div class="stat-tile">
+                    <div class="stat-icon"><i class="fas fa-list"></i></div>
+                    <div class="stat-content">
+                        <span>股票總數</span>
+                        <strong id="totalStocks">0</strong>
+                    </div>
                 </div>
-                <div class="card-body">
-                    <div class="form-group">
-                        <label><i class="fas fa-calendar-alt"></i> 抓取年數</label>
-                        <input type="number" id="years" class="form-control" value="10" min="1" max="20">
+                <div class="stat-tile">
+                    <div class="stat-icon"><i class="fas fa-check-circle"></i></div>
+                    <div class="stat-content">
+                        <span>成功執行</span>
+                        <strong id="successCount">0</strong>
+                    </div>
+                </div>
+                <div class="stat-tile">
+                    <div class="stat-icon"><i class="fas fa-clock"></i></div>
+                    <div class="stat-content">
+                        <span>排程狀態</span>
+                        <strong id="scheduleStatus">未啟用</strong>
+                    </div>
+                </div>
+                <div class="stat-tile">
+                    <div class="stat-icon"><i class="fas fa-history"></i></div>
+                    <div class="stat-content">
+                        <span>歷史記錄</span>
+                        <strong id="historyCount">0</strong>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <div class="content">
+            <!-- 主標題區域 -->
+            <div class="hero">
+                <div>
+                    <h2>歡迎使用量化交易系統</h2>
+                    <p>智能化的股票分析與交易排程平台</p>
+                </div>
+            </div>
+
+            <!-- 卡片網格 -->
+            <div class="panel-grid">
+                <!-- 股票清單管理 -->
+                <div class="panel">
+                    <div class="panel-header">
+                        <h3>
+                            <span><i class="fas fa-list-ul"></i></span>
+                            股票清單管理
+                        </h3>
+                    </div>
+                    <div class="panel-description">
+                        管理您的股票清單，設定分析參數，並透過 Discord 獲取即時報告。
+                    </div>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label><i class="fas fa-calendar-alt"></i> 抓取年數</label>
+                            <input type="number" id="years" class="form-control" value="10" min="1" max="20">
+                        </div>
+
+                        <div class="form-group">
+                            <label><i class="fas fa-paper-plane"></i> Discord Webhook URL</label>
+                            <input type="url" id="webhookUrl" class="form-control" placeholder="https://discord.com/api/webhooks/..." autocomplete="off">
+                        </div>
                     </div>
 
                     <div class="stock-list" id="stockList">
@@ -844,21 +762,35 @@
                         </button>
                     </div>
                 </div>
-            </div>
 
-            <!-- 快速執行 -->
-            <div class="card">
-                <div class="card-header">
-                    <i class="fas fa-rocket"></i>
-                    <h2>快速執行</h2>
-                </div>
-                <div class="card-body">
+                <!-- 快速執行 -->
+                <div class="panel">
+                    <div class="panel-header">
+                        <h3>
+                            <span><i class="fas fa-rocket"></i></span>
+                            快速執行
+                        </h3>
+                    </div>
+                    <div class="panel-description">
+                        立即對選中的股票執行分析，並獲取即時結果與建議。
+                    </div>
+
                     <div class="alert alert-info">
                         <i class="fas fa-info-circle"></i>
                         <div>
                             <strong>自動化流程</strong><br>
                             📊 數據抓取 → 🔬 指標計算 → 🎯 訊號預測 → 📬 Discord 推送
                         </div>
+                    </div>
+
+                    <div class="toggle-wrapper" style="margin: 1rem 0;">
+                        <span class="toggle-label">
+                            <i class="fas fa-paper-plane"></i> 分析完成後推送 Discord 報告
+                        </span>
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="sendReportToggle" checked>
+                            <span class="toggle-slider"></span>
+                        </label>
                     </div>
 
                     <button class="btn btn-primary btn-lg btn-block" onclick="executeAnalysis()">
@@ -868,7 +800,7 @@
 
                     <div id="executionStatus" class="execution-status"></div>
 
-                    <div class="alert alert-success" style="margin-top: 1rem;">
+                    <div class="alert alert-success" id="discordStatusNote" style="margin-top: 1rem;">
                         <i class="fas fa-check-circle"></i>
                         <div>
                             <strong>Discord 自動推送</strong><br>
@@ -877,17 +809,21 @@
                     </div>
                 </div>
             </div>
-        </div>
 
-        <!-- 排程與歷史 -->
-        <div class="cards-grid">
-            <!-- 排程管理 -->
-            <div class="card">
-                <div class="card-header">
-                    <i class="fas fa-calendar-check"></i>
-                    <h2>排程管理</h2>
-                </div>
-                <div class="card-body">
+            <!-- 排程與歷史 -->
+            <div class="panel-grid">
+                <!-- 排程管理 -->
+                <div class="panel">
+                    <div class="panel-header">
+                        <h3>
+                            <span><i class="fas fa-calendar-check"></i></span>
+                            排程管理
+                        </h3>
+                    </div>
+                    <div class="panel-description">
+                        設定自動排程，系統將依據排程自動執行分析並推送結果。
+                    </div>
+
                     <div class="toggle-wrapper">
                         <span class="toggle-label">
                             <i class="fas fa-power-off"></i> 啟用自動排程
@@ -901,6 +837,16 @@
                     <div class="form-group">
                         <label><i class="fas fa-clock"></i> 執行時間</label>
                         <input type="time" id="scheduleTime" class="form-control" value="20:00">
+                    </div>
+
+                    <div class="toggle-wrapper" style="margin-bottom: 1rem;">
+                        <span class="toggle-label">
+                            <i class="fas fa-paper-plane"></i> 排程完成後推送 Discord 報告
+                        </span>
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="scheduleSendReport" checked>
+                            <span class="toggle-slider"></span>
+                        </label>
                     </div>
 
                     <div class="form-group">
@@ -927,18 +873,22 @@
                         </div>
                     </div>
                 </div>
-            </div>
 
-            <!-- 執行歷史 -->
-            <div class="card">
-                <div class="card-header">
-                    <i class="fas fa-history"></i>
-                    <h2>執行歷史</h2>
-                    <span style="margin-left: auto; font-size: 0.8rem; opacity: 0.9;">
-                        <i class="fas fa-sync-alt"></i> 每30秒自動更新
-                    </span>
-                </div>
-                <div class="card-body">
+                <!-- 執行歷史 -->
+                <div class="panel">
+                    <div class="panel-header">
+                        <h3>
+                            <span><i class="fas fa-history"></i></span>
+                            執行歷史
+                        </h3>
+                        <span style="margin-left: auto; font-size: 0.8rem; opacity: 0.9;">
+                            <i class="fas fa-sync-alt"></i> 每10秒自動更新
+                        </span>
+                    </div>
+                    <div class="panel-description">
+                        檢視過去的執行記錄，了解分析結果與建議。
+                    </div>
+
                     <div class="btn-group">
                         <button class="btn btn-secondary" onclick="loadHistory()">
                             <i class="fas fa-sync"></i> 立即刷新
@@ -957,10 +907,14 @@
     </div>
 
     <script>
-        // 全局變量
-        let config = { stocks: [], years: 10 };
+    const HISTORY_REFRESH_INTERVAL_MS = 10000;
+
+    // 全局變量
+        let config = { stocks: [], years: 10, webhook_url: '' };
         let selectedStocks = new Set();
         let historyRefreshInterval = null;
+    let manualSendReport = true;
+    let scheduleSendReport = true;
 
         // 頁面載入初始化
         window.onload = function() {
@@ -970,8 +924,73 @@
             loadHistory();
             loadSchedule();
             startHistoryAutoRefresh();
+            setupEventListeners();
             updateStats();
         };
+
+        function setupEventListeners() {
+            const manualToggle = document.getElementById('sendReportToggle');
+            if (manualToggle) {
+                manualToggle.checked = manualSendReport;
+                manualToggle.addEventListener('change', (event) => {
+                    manualSendReport = event.target.checked;
+                    updateDiscordStatusNote();
+                });
+                updateDiscordStatusNote();
+            }
+
+            const scheduleToggle = document.getElementById('scheduleSendReport');
+            if (scheduleToggle) {
+                scheduleToggle.checked = scheduleSendReport;
+                scheduleToggle.addEventListener('change', (event) => {
+                    scheduleSendReport = event.target.checked;
+                });
+            }
+
+            const webhookInput = document.getElementById('webhookUrl');
+            if (webhookInput) {
+                webhookInput.addEventListener('input', (event) => {
+                    config.webhook_url = event.target.value.trim();
+                    updateDiscordStatusNote();
+                });
+            }
+        }
+
+        function updateDiscordStatusNote() {
+            const note = document.getElementById('discordStatusNote');
+            if (!note) return;
+
+            if (manualSendReport) {
+                if (!config.webhook_url) {
+                    note.className = 'alert alert-warning';
+                    note.innerHTML = `
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <div>
+                            <strong>尚未設定 Discord Webhook</strong><br>
+                            系統將改用環境變數 <code>DISCORD_WEBHOOK_URL</code>，若未配置將導致推送失敗
+                        </div>
+                    `;
+                } else {
+                    note.className = 'alert alert-success';
+                    note.innerHTML = `
+                        <i class="fas fa-check-circle"></i>
+                        <div>
+                            <strong>Discord 自動推送</strong><br>
+                            分析完成後會自動將報告發送到設定的頻道
+                        </div>
+                    `;
+                }
+            } else {
+                note.className = 'alert alert-warning';
+                note.innerHTML = `
+                    <i class="fas fa-bell-slash"></i>
+                    <div>
+                        <strong>Discord 推送已停用</strong><br>
+                        本次分析完成後將不會發送 Discord 報告
+                    </div>
+                `;
+            }
+        }
 
         // 更新日期時間
         function updateDateTime() {
@@ -991,7 +1010,7 @@
             historyRefreshInterval = setInterval(() => {
                 loadHistory();
                 updateStats();
-            }, 30000);
+            }, HISTORY_REFRESH_INTERVAL_MS);
         }
 
         // 頁面卸載時清除定時器
@@ -1016,7 +1035,15 @@
             fetch('/api/schedule')
                 .then(res => res.json())
                 .then(schedule => {
-                    document.getElementById('scheduleStatus').textContent = schedule.enabled ? '已啟用' : '未啟用';
+                    const statusEl = document.getElementById('scheduleStatus');
+                    if (!statusEl) return;
+                    if (schedule.enabled) {
+                        statusEl.textContent = schedule.send_report === false || schedule.sendReport === false
+                            ? '已啟用（停用推送）'
+                            : '已啟用';
+                    } else {
+                        statusEl.textContent = '未啟用';
+                    }
                 });
         }
 
@@ -1025,8 +1052,14 @@
             try {
                 const response = await fetch('/api/config');
                 config = await response.json();
+                config.webhook_url = config.webhook_url || '';
                 document.getElementById('years').value = config.years;
+                const webhookInput = document.getElementById('webhookUrl');
+                if (webhookInput) {
+                    webhookInput.value = config.webhook_url;
+                }
                 renderStockList();
+                updateDiscordStatusNote();
                 updateStats();
             } catch (error) {
                 showNotification('載入配置失敗', 'error');
@@ -1133,6 +1166,10 @@
         async function saveConfig() {
             try {
                 config.years = parseInt(document.getElementById('years').value);
+                const webhookInput = document.getElementById('webhookUrl');
+                if (webhookInput) {
+                    config.webhook_url = webhookInput.value.trim();
+                }
                 const response = await fetch('/api/config', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -1168,12 +1205,17 @@
             `;
 
             try {
+                if (manualSendReport && !config.webhook_url) {
+                    showNotification('尚未設定 Discord Webhook，系統將改用環境變數 DISCORD_WEBHOOK_URL', 'info');
+                }
+
                 const response = await fetch('/api/execute', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
                         stocks: Array.from(selectedStocks),
-                        years: config.years
+                        years: config.years,
+                        sendReport: manualSendReport
                     })
                 });
                 const result = await response.json();
@@ -1267,6 +1309,11 @@
 
                 document.getElementById('scheduleEnabled').checked = schedule.enabled;
                 document.getElementById('scheduleTime').value = schedule.time;
+                scheduleSendReport = !(schedule.send_report === false || schedule.sendReport === false);
+                const scheduleToggle = document.getElementById('scheduleSendReport');
+                if (scheduleToggle) {
+                    scheduleToggle.checked = scheduleSendReport;
+                }
 
                 schedule.stocks.forEach(stock => {
                     const checkbox = document.getElementById(`stock-${stock}`);
@@ -1289,7 +1336,8 @@
                 const scheduleConfig = {
                     enabled: document.getElementById('scheduleEnabled').checked,
                     time: document.getElementById('scheduleTime').value,
-                    stocks: Array.from(selectedStocks)
+                    stocks: Array.from(selectedStocks),
+                    sendReport: scheduleSendReport
                 };
 
                 const response = await fetch('/api/schedule', {

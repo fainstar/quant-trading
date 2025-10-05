@@ -95,7 +95,7 @@ y = df_features['Action']
 train_window_size = 500  # 約 1 年的交易日
 min_train_size = 100  # 最小訓練集大小
 
-# 建立一個空的 Series 來儲存樣本外預測結果
+# 建立一個空的 Series 來儲存樣本外預測結果 
 bayesian_signals = pd.Series(index=df_features.index, dtype=object)
 
 print(f"開始執行滾動窗口訓練與預測 (訓練窗口: {train_window_size} 天)...")

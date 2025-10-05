@@ -4,20 +4,32 @@
 """
 
 from flask import Flask, render_template, request, jsonify, send_file
-import subprocess
 import json
+import logging
 import os
 import sys
 from datetime import datetime
+from pathlib import Path
 import threading
 import schedule
 import time
 
-# 設定編碼
-if sys.platform == 'win32':
-    import io
-    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8')
-    sys.stderr = io.TextIOWrapper(sys.stderr.buffer, encoding='utf-8')
+
+def _ensure_src_on_path() -> None:
+    project_root = Path(__file__).resolve().parent
+    src_path = project_root / "src"
+    if src_path.exists() and str(src_path) not in sys.path:
+        sys.path.insert(0, str(src_path))
+
+
+_ensure_src_on_path()
+
+try:
+    from quant_trading import fetch, features, rolling, pretidy, predict, reporting  # type: ignore[import]  # noqa: E402
+except ImportError as exc:  # pragma: no cover - guard for misconfigured PYTHONPATH
+    raise SystemExit("找不到 quant_trading 模組，請確認 src 目錄是否存在。") from exc
+
+logging.basicConfig(level=logging.INFO)
 
 app = Flask(__name__)
 
@@ -38,19 +50,79 @@ is_running = False
 
 def load_config():
     """載入股票配置"""
-    if os.path.exists(CONFIG_FILE):
-        with open(CONFIG_FILE, 'r', encoding='utf-8') as f:
-            return json.load(f)
-    return {
+    defaults = {
         'stocks': ["00631L.TW", "0050.TW", "2330.TW", "AAPL", "ETH-USD", "BTC-USD"],
-        'years': 10
+        'years': 10,
+        'webhook_url': ''
     }
+
+    if os.path.exists(CONFIG_FILE):
+        try:
+            with open(CONFIG_FILE, 'r', encoding='utf-8') as f:
+                data = json.load(f)
+        except json.JSONDecodeError:
+            data = {}
+        if not isinstance(data, dict):
+            data = {}
+
+        stocks = data.get('stocks', defaults['stocks'])
+        if isinstance(stocks, list):
+            cleaned_stocks = []
+            for stock in stocks:
+                if isinstance(stock, str) and stock.strip():
+                    cleaned_stocks.append(stock.strip().upper())
+            stocks = cleaned_stocks
+        else:
+            stocks = defaults['stocks']
+
+        years = data.get('years', defaults['years'])
+        try:
+            years = int(years)
+        except (TypeError, ValueError):
+            years = defaults['years']
+        years = max(1, min(years, 20))
+
+        webhook_url = data.get('webhook_url', defaults['webhook_url'])
+        if not isinstance(webhook_url, str):
+            webhook_url = ''
+
+        return {
+            'stocks': stocks,
+            'years': years,
+            'webhook_url': webhook_url.strip(),
+        }
+
+    return defaults
 
 
 def save_config(config):
     """保存股票配置"""
+    stocks = config.get('stocks', []) if isinstance(config, dict) else []
+    if isinstance(stocks, list):
+        stocks = [stock.strip().upper() for stock in stocks if isinstance(stock, str) and stock.strip()]
+    else:
+        stocks = []
+
+    years = config.get('years', 10) if isinstance(config, dict) else 10
+    try:
+        years = int(years)
+    except (TypeError, ValueError):
+        years = 10
+    years = max(1, min(years, 20))
+
+    webhook_url = ''
+    if isinstance(config, dict):
+        raw_webhook = config.get('webhook_url', '')
+        webhook_url = raw_webhook.strip() if isinstance(raw_webhook, str) else ''
+
+    payload = {
+        'stocks': stocks,
+        'years': years,
+        'webhook_url': webhook_url,
+    }
+
     with open(CONFIG_FILE, 'w', encoding='utf-8') as f:
-        json.dump(config, f, ensure_ascii=False, indent=2)
+        json.dump(payload, f, ensure_ascii=False, indent=2)
 
 
 def load_history():
@@ -87,11 +159,18 @@ def load_schedule_config():
     """載入排程配置"""
     if os.path.exists(SCHEDULE_FILE):
         with open(SCHEDULE_FILE, 'r', encoding='utf-8') as f:
-            return json.load(f)
+            data = json.load(f)
+        if 'send_report' not in data:
+            data['send_report'] = data.get('sendReport', True)
+        else:
+            data['send_report'] = bool(data['send_report'])
+        data.pop('sendReport', None)
+        return data
     return {
         'enabled': False,
         'time': '20:00',
-        'stocks': []
+        'stocks': [],
+        'send_report': True
     }
 
 
@@ -101,37 +180,89 @@ def save_schedule_config(config):
         json.dump(config, f, ensure_ascii=False, indent=2)
 
 
-def execute_stock_analysis(stock, years):
+def execute_stock_analysis(stock, years, send_report=True, webhook_url=None):
     """執行股票分析流程"""
-    try:
-        steps = [
-            ("01_fetch_stock_data.py", ["-t", stock, "-y", str(years)]),
-            ("02_feature_engineering.py", []),
-            ("03_time_window_4bins.py", []),
-            ("04_pretidy.py", []),
-            ("05_predict_next_day_signal.py", []),
-            ("06_send_report_to_discord.py", ["-s", stock])
-        ]
-        
-        for script, args in steps:
-            result = subprocess.run(
-                ["python", script] + args,
-                capture_output=True,
-                text=True,
-                encoding='utf-8',
-                errors='replace'  # 處理編碼錯誤
+
+    data_dir = Path("data")
+    log_dir = Path("log")
+    data_dir.mkdir(parents=True, exist_ok=True)
+    log_dir.mkdir(parents=True, exist_ok=True)
+
+    steps = []
+    configured_webhook = (webhook_url or '').strip()
+
+    if send_report and not configured_webhook:
+        logging.info("[%s] 未在配置中設定 Discord Webhook，將改用環境變數進行推送。", stock)
+
+    def step_fetch() -> None:
+        df = fetch.fetch_stock_data(stock, years=years)
+        if df is None or df.empty:
+            raise RuntimeError("抓取數據結果為空")
+        df.to_csv(data_dir / "data.csv", index=False)
+
+    steps.append(("抓取原始數據", step_fetch))
+
+    def step_feature() -> None:
+        config = features.FeatureEngineeringConfig(
+            input_path=data_dir / "data.csv",
+            output_path=data_dir / "feature.csv",
+        )
+        features.run_feature_engineering(config)
+
+    steps.append(("特徵工程", step_feature))
+
+    def step_rolling() -> None:
+        config = rolling.RollingWindowConfig(
+            input_path=data_dir / "feature.csv",
+            output_path=data_dir / "rolling_window_100day_4bins.csv",
+        )
+        rolling.run_rolling_window(config)
+
+    steps.append(("時間窗口切分", step_rolling))
+
+    def step_pretidy() -> None:
+        config = pretidy.PreTidyConfig(
+            input_path=data_dir / "rolling_window_100day_4bins.csv",
+            output_path=data_dir / "final_data.csv",
+        )
+        pretidy.run_pretidy(config)
+
+    steps.append(("資料預處理", step_pretidy))
+
+    def step_predict() -> None:
+        config = predict.PredictionConfig(
+            input_path=data_dir / "final_data.csv",
+            report_output_path=log_dir / "daily_trading_report.txt",
+            report_metadata_path=log_dir / "daily_trading_report.json",
+        )
+        predict.run_prediction_pipeline(config)
+
+    steps.append(("預測隔日信號", step_predict))
+
+    if send_report:
+        def step_report() -> None:
+            report_config = reporting.DiscordReportConfig(
+                report_path=log_dir / "daily_trading_report.txt",
+                metadata_path=log_dir / "daily_trading_report.json",
+                stock_name=stock,
+                webhook_url=configured_webhook or None,
             )
-            if result.returncode != 0:
-                error_msg = f"執行 {script} 失敗: {result.stderr[:200]}"  # 限制錯誤訊息長度
-                add_history_record(stock, 'failed', error_msg)
-                return False, error_msg
-        
-        add_history_record(stock, 'success', '所有步驟執行成功')
-        return True, '執行成功'
-    except Exception as e:
-        error_msg = f'執行過程發生錯誤: {str(e)[:200]}'
-        add_history_record(stock, 'error', error_msg)
-        return False, error_msg
+            reporting.run_report_dispatch(report_config)
+
+        steps.append(("發送 Discord 報告", step_report))
+
+    for description, action in steps:
+        try:
+            logging.info("[%s] 開始: %s", stock, description)
+            action()
+            logging.info("[%s] 完成: %s", stock, description)
+        except Exception as exc:  # noqa: BLE001
+            error_msg = f"{description} 失敗: {str(exc)[:500]}"
+            add_history_record(stock, 'failed', error_msg)
+            return False, error_msg
+
+    add_history_record(stock, 'success', '所有步驟執行成功')
+    return True, '執行成功'
 
 
 def schedule_job():
@@ -141,9 +272,11 @@ def schedule_job():
         print(f"[{datetime.now()}] 執行排程任務...")
         stock_config = load_config()
         years = stock_config.get('years', 10)
+        send_report = config.get('send_report', True)
+        webhook_url = (stock_config.get('webhook_url', '') or '').strip()
         
         for stock in config['stocks']:
-            execute_stock_analysis(stock, years)
+            execute_stock_analysis(stock, years, send_report=send_report, webhook_url=webhook_url)
 
 
 def run_schedule():
@@ -180,6 +313,9 @@ def execute():
     data = request.json
     stocks = data.get('stocks', [])
     years = data.get('years', 10)
+    send_report = bool(data.get('send_report', data.get('sendReport', True)))
+    stock_config = load_config()
+    webhook_url = (stock_config.get('webhook_url', '') or '').strip()
     
     if not stocks:
         return jsonify({'success': False, 'message': '請選擇至少一支股票'})
@@ -187,7 +323,7 @@ def execute():
     # 在後台線程執行
     def run_analysis():
         for stock in stocks:
-            execute_stock_analysis(stock, years)
+            execute_stock_analysis(stock, years, send_report=send_report, webhook_url=webhook_url)
     
     thread = threading.Thread(target=run_analysis)
     thread.start()
@@ -220,13 +356,19 @@ def update_schedule():
     global is_running, schedule_thread
     
     data = request.json
-    save_schedule_config(data)
+    normalized = {
+        'enabled': bool(data.get('enabled', False)),
+        'time': data.get('time', '20:00'),
+        'stocks': data.get('stocks', []),
+        'send_report': bool(data.get('send_report', data.get('sendReport', True)))
+    }
+    save_schedule_config(normalized)
     
     # 重新設置排程
     schedule.clear()
     
-    if data['enabled']:
-        schedule.every().day.at(data['time']).do(schedule_job)
+    if normalized['enabled']:
+        schedule.every().day.at(normalized['time']).do(schedule_job)
         
         if not is_running:
             is_running = True

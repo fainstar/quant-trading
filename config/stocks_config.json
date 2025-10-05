@@ -5,7 +5,10 @@
     "2330.TW",
     "AAPL",
     "ETH-USD",
-    "BTC-USD"
+    "BTC-USD",
+    "AMD",
+    "SOL-USD"
   ],
-  "years": 10
+  "years": 10,
+  "webhook_url": "https://discord.com/api/webhooks/1424396388124594399/74bouovIPY3vmKjy3ZM-wLlh2zoH_jNFn_Q6tlVfxQe4kRoWOF0JyaZ3AR2Zh1S5Tnmv"
 }

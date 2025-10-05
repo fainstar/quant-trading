@@ -2,6 +2,7 @@
 yfinance==0.2.38
 pandas==2.2.0
 numpy==1.26.4
+pyarrow>=15.0.0
 
 # Web 框架
 Flask==3.0.2
@@ -15,6 +16,9 @@ schedule==1.2.1
 
 # HTTP 請求（Discord 推送）
 requests==2.31.0
+
+# 機器學習
+scikit-learn==1.5.1
 
 # 其他依賴
 Werkzeug==3.0.1

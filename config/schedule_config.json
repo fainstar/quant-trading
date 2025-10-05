@@ -8,5 +8,6 @@
     "AAPL",
     "ETH-USD",
     "BTC-USD"
-  ]
+  ],
+  "send_report": true
 }
